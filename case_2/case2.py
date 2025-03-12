@@ -21,10 +21,8 @@ def find_cb(func):
                 b = float(b_str + '1')
             else:
                 b = 0.0  # Turn '+' to 1.0, '-' to -1.0, empty to 0.0.
-
         else:
             b = float(b_str)
-
         return c, b
     else:
         raise ValueError(ru.DEF_TYPE_ERR)
