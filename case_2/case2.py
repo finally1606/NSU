@@ -4,9 +4,8 @@ import re
 
 import ru
 def find_cb(func):
-    #Function to parse a string with the equation Q = c + bp. Extracts coefficients c and b.
-
-    pattern = re.match(r"Q=([+-]?\d*\.?\d+)?([+-]?\d*\.?\d*)p?", func)  # Search for coefficients c and b
+    # Search for coefficients c and b
+    pattern = re.match(r"Q=([+-]?\d*\.?\d+)?([+-]?\d*\.?\d*)p?", func)
 
     if pattern:
         c_str, b_str = pattern.groups()
