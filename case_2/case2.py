@@ -25,7 +25,7 @@ def find_cb(func):
             b = float(b_str)
         return c, b
     else:
-        raise ValueError(ru.DEF_TYPE_ERR)
+        print(ru.DEF_TYPE_ERR)
 
 def main():
     # Request equation input
