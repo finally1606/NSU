@@ -66,7 +66,7 @@ def uncontrolled_event():
     global weapons_amount, morale_amount, medications_amount
 
     outcome = random.randint(1, 100)
-    if outcome < 50:  # 50% шанс на атаку зомби
+    if outcome < 50:  # 50% Chance to zombie attack
         zombies = random.randint(1, 3)
         if weapons_amount > 0:
             weapons_amount -= zombies
@@ -76,7 +76,7 @@ def uncontrolled_event():
             morale_amount -= 50
             print("\n" + ZOMBIE_ATTACK_NO_WEAPONS)
     else:
-        found_meds = random.randint(1, 2)
+        found_meds = random.randint(0, 1)
         medications_amount += found_meds
         print("\n" + FOUND_MEDICATIONS.format(found_meds))
     input("\n" + PRESS_ENTER)
