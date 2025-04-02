@@ -52,7 +52,7 @@ def uncontrolled_event():
     global weapons_amount, morale_amount, medications_amount
 
     outcome = random.randint(1, 100)
-    if outcome < 30:  # 30% шанс на нападение зомби
+    if outcome < 40:  # 30% шанс на нападение зомби
         zombies = random.randint(1, 3)
         if weapons_amount > 0:
             weapons_amount -= zombies
@@ -65,6 +65,7 @@ def uncontrolled_event():
         found_meds = random.randint(1, 2)
         medications_amount += found_meds
         print("\n" + FOUND_MEDICATIONS.format(found_meds))
+    input("\n" + PRESS_ENTER)
 
 
 def game_loop():
@@ -80,7 +81,6 @@ def game_loop():
         print(DAY_TITLE.format(days_survived_count + 1))
         display_resources()
         uncontrolled_event()
-
         days_survived_count += 1
 
     clear_console()
