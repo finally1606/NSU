@@ -1,8 +1,7 @@
 import random
-import os
 from ru import *
 
-# Глобальные переменные для хранения состояния игры
+#Global variables for storing game state
 food_amount = 100
 weapons_amount = 5
 medications_amount = 3
@@ -11,10 +10,11 @@ days_survived_count = 0
 
 
 def clear_console():
+    #function for cleaning the screen
     print('\n' * 100)
 
-
 def display_resources():
+    #function to display the resources a player has
     print(RESOURCES_TITLE)
     print(FOOD.format(food_amount))
     print(WEAPONS.format(weapons_amount))
@@ -24,6 +24,7 @@ def display_resources():
 
 
 def controlled_event():
+    #player action selection function
     global food_amount, morale_amount
 
     print(CONTROLLED_EVENT_TITLE)
@@ -38,10 +39,12 @@ def controlled_event():
             print("\n" + BASE_FORTIFIED)
         else:
             print("\n" + NOT_ENOUGH_FOOD)
+
     elif choice == "2":
         found_food = random.randint(10, 50)
         food_amount += found_food
         print("\n" + FOUND_FOOD.format(found_food))
+
     else:
         print("\n" + INVALID_CHOICE)
 
@@ -49,6 +52,7 @@ def controlled_event():
 
 
 def uncontrolled_event():
+    #Choose whether the player will be attacked by zombies or find medical supplies
     global weapons_amount, morale_amount, medications_amount
 
     outcome = random.randint(1, 100)
