@@ -1,4 +1,4 @@
-'''
+
 #1st
 circle_data = list(map(int, input().split()))
 print(2*circle_data[0]*circle_data[2]+2*circle_data[1])
@@ -77,7 +77,6 @@ print(square_pairs//2)
 import math as computation
 user_number = int(input())
 print(computation.factorial(user_number+2)/((user_number+2)/2))
-'''
 
 #10th
 import math as math_ops
