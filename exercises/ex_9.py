@@ -1,16 +1,15 @@
-
-#1st
+#1
 circle_data = list(map(int, input().split()))
 print(2*circle_data[0]*circle_data[2]+2*circle_data[1])
 
-#2nd
+#2
 import math as number_math
 user_input = int(input())
 while user_input > 2:
     user_input = number_math.sqrt(user_input)
     print('{:.3f}'.format(user_input))
 
-#3rd
+#3
 frozen_treats = int(input())
 possible_divisors = []
 for divisor_candidate in range(2, frozen_treats+1):
@@ -18,7 +17,7 @@ for divisor_candidate in range(2, frozen_treats+1):
         possible_divisors.append(divisor_candidate)
 print(possible_divisors[0])
 
-#4th
+#4
 number_sequence = []
 while 0 not in number_sequence:
     number_sequence.append(int(input()))
@@ -28,7 +27,7 @@ for value in number_sequence:
         counter +=1
 print(counter)
 
-#5th
+#5
 number_range = range(100000, 1000000)
 special_numbers = []
 for index in range(0, len(number_range)-3):
@@ -43,14 +42,14 @@ for index in range(0, len(number_range)-3):
                     special_numbers.append(number_range[index])
 print(special_numbers)
 
-#6th
+#6
 result_numbers = []
 for two_digit in range(10, 100):
     if (str(two_digit) in str(two_digit**2)) and (two_digit**2<1000) and ((two_digit**2)%100 == two_digit):
         result_numbers.append(two_digit**2)
 print(result_numbers)
 
-#7th
+#7
 import tqdm
 possible_combinations = []
 for first_operand in tqdm.tqdm(range(1000, 10000)):
@@ -63,7 +62,7 @@ for first_operand in tqdm.tqdm(range(1000, 10000)):
             possible_combinations.append([first_operand, second_operand, first_operand+second_operand])
 print(possible_combinations)
 
-#8th
+#8
 import math as calculation
 input_value = int(input())
 square_pairs = 0
@@ -73,13 +72,12 @@ for first_value in range(input_value+1):
             square_pairs+=1
 print(square_pairs//2)
 
-#9th
+#9
 import math as computation
 user_number = int(input())
 print(computation.factorial(user_number+2)/((user_number+2)/2))
 
-#10th
-import math as math_ops
+#10
 factorial_input = int(input())
 
 def get_inverse_fact(n):
@@ -102,7 +100,7 @@ extra_terms = 0
 
 while inverse_result > 2:
     number_list[0] += number_list[inverse_result]
-    number_list[invers e_result] = 0
+    number_list[inverse_result] = 0
     inverse_result -= 1
     extra_terms +=1
 
