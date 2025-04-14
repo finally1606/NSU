@@ -102,7 +102,7 @@ extra_terms = 0
 
 while inverse_result > 2:
     number_list[0] += number_list[inverse_result]
-    number_list[inverse_result] = 0
+    number_list[invers e_result] = 0
     inverse_result -= 1
     extra_terms +=1
 
