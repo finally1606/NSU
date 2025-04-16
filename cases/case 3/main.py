@@ -102,19 +102,17 @@ def controlled_event(team, teams):
         print("\nВыберите команду для запроса помощи:")
         options = [t for t in teams if t != team and t['alive']]
         for i, t in enumerate(options):
-            print(f"{i + 1}. {t['name']} (сила: {calculate_power(t)})")
+            print(f"{i + 1}. {t['name']}")
         try:
             selected = int(input("Введите номер команды: ")) - 1
             target = options[selected]
-            if target['food'] >= 15:
-                transferred_food = min(15, target['food'])
-                target['food'] -= transferred_food
-                team['food'] += transferred_food
-                print(f"{target['name']} передала {transferred_food} еды команде {team['name']}.")
-            else:
-                print(f"{target['name']} не может помочь.")
+            pending_requests.append({'from': team, 'to': target})
+            print(f"\nЗапрос помощи отправлен команде {target['name']}.")
         except:
             print("Неверный выбор.")
+
+        input(PRESS_ENTER)
+
 
     elif choice == "5":
         print("\nВыберите команду для налёта:")
@@ -205,6 +203,8 @@ def uncontrolled_event(team):
 
 
 def game_loop():
+    global pending_requests
+    pending_requests = []
     days_survived = 0
 
     teams = []
@@ -229,7 +229,43 @@ def game_loop():
                 print(DAY_TITLE.format(days_survived + 1))
                 print(f"Команда: {team['name']}")
                 display_team_resources(team)
-                uncontrolled_event(team)
+
+                # Проверка входящих запросов
+                requests_for_team = [r for r in pending_requests if r['to'] == team]
+                for request in requests_for_team:
+                    from_team = request['from']
+                    print(f"\nКоманда {from_team['name']} просит помощи.")
+                    choice = input("Помочь? (y/n): ").strip().lower()
+                    if choice == "y":
+                        try:
+                            max_food = team['food']
+                            max_weapons = team['weapons']
+                            max_meds = team['meds']
+
+                            food = int(input(f"Сколько еды передать? (макс {max_food}): "))
+                            weapons = int(input(f"Сколько оружия передать? (макс {max_weapons}): "))
+                            meds = int(input(f"Сколько медикаментов передать? (макс {max_meds}): "))
+
+                            if 0 <= food <= max_food and 0 <= weapons <= max_weapons and 0 <= meds <= max_meds:
+                                team['food'] -= food
+                                team['weapons'] -= weapons
+                                team['meds'] -= meds
+                                from_team['food'] += food
+                                from_team['weapons'] += weapons
+                                from_team['meds'] += meds
+                                print(
+                                    f"Вы передали: {food} еды, {weapons} оружия, {meds} медикаментов команде {from_team['name']}.")
+                            else:
+                                print("Недопустимое количество. Помощь не оказана.")
+                        except:
+                            print("Ошибка ввода. Помощь не оказана.")
+                    else:
+                        print("Вы отказали в помощи.")
+
+                # Удаляем обработанные запросы
+                pending_requests = [r for r in pending_requests if r['to'] != team]
+
+                controlled_event(team, teams)
 
         days_survived += 1
 
