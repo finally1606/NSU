@@ -1,124 +1,287 @@
-import math
+import random
 
-#1
-carpet = list(map(int, input().split("x")))
-a, b = carpet[0], carpet[1]
+# Константы
+RESOURCES_TITLE = "\nРесурсы:"
+FOOD = "Еда: {} (сытость)"
+WEAPONS = "Оружие: {} (сила)"
+MEDICATIONS = "Медикаменты: {}"
+MORALE = "Мораль: {}"
+DAY_TITLE = "\n=== День {} ==="
+GAME_OVER_TITLE = "\n=== ИГРА ОКОНЧЕНА ==="
+DAYS_SURVIVED = "Вы продержались {} дней."
+WIN_MESSAGE = "Вы выжили все 10 дней! Поздравляем!"
+LOSE_MESSAGE = "Мораль одной из команд упала до нуля или все команды погибли. Игра окончена."
+PRESS_ENTER = "\nНажмите Enter, чтобы продолжить..."
 
-circle_diameter = 2 * 6.5
-diagonal = math.sqrt(a ** 2 + b ** 2)
+BASE_FORTIFIED = "База укреплена. Мораль повышена."
+FOUND_FOOD = "Вы нашли {} единиц еды."
+USED_MEDICATIONS = "Вы использовали медикаменты. Мораль повышена."
+NOT_ENOUGH_FOOD = "Недостаточно еды."
+NOT_ENOUGH_MEDICATIONS = "Недостаточно медикаментов."
+INVALID_CHOICE = "Неверный выбор."
+ZOMBIE_ATTACK_WITH_WEAPONS = "Зомби атаковали! Вы использовали {} оружия, мораль снизилась."
+ZOMBIE_ATTACK_NO_WEAPONS = "Зомби атаковали, но у вас не было оружия! Мораль резко упала."
+FOUND_MEDICATIONS = "Вы нашли {} медикаментов."
+RAID_SUCCESS = "Успешный налёт! Вы забрали {} еды и {} оружия у {}."
+RAID_FAILED = "Налёт провалился! Вы потеряли {} еды и {} оружия."
+RAID_EQUAL = "Налёт не удался - силы равны. Ничего не произошло."
+HUNGER_PENALTY = "Ваша команда голодает! Сила уменьшена."
 
-print("да") if diagonal <= circle_diameter else print("нет")
 
-#2
-square = list(map(int, input().split("x")))
-a, b = square[0], square[1]
+def create_team(name):
+    return {
+        'name': name,
+        'food': 60,
+        'weapons': 5,
+        'meds': 3,
+        'morale': 50,
+        'alive': True,
+        'no_food_days': 0,
+        'refused_help': 0
+    }
 
-volume = list(map(int, input().split("x")))
-c, d, e = volume[0], volume[1], volume[2]
 
-hole = a * b
-brick_1 = c * e
-brick_2 = e * d
-brick_3 = c * d
+def calculate_power(team):
+    base_power = team['weapons'] * 2 + team['morale'] // 10
+    if team['food'] > 50:
+        food_bonus = 5
+    elif team['food'] > 20:
+        food_bonus = 0
+    else:
+        food_bonus = -10
+        print(HUNGER_PENALTY)
+    return max(1, base_power + food_bonus)
 
-print("да") if brick_1 < hole or brick_2 < hole or brick_3 < hole else print("нет")
 
-#3
-n, m = map(int, input().split("x"))
-k = int(input())
+def clear_console():
+    print("\n" * 100)
 
-if k < m * n:
-    C = 0
-    for string in range(1, n):
-        if (string * m) >= k and ((n - string) * m) >= (n * m - k):
-            C += 1
-    for raw in range(1, m):
-        if (raw * n) >= k and ((m - raw) * n) >= (n * m - k):
-            C += 1
-else:
-    print(f'Некорректный ввод')
 
-print('Успешно') if C > 0 else print('Неосуществимо')
+def display_team_resources(team):
+    print(RESOURCES_TITLE)
+    print(FOOD.format(team['food']))
+    print(WEAPONS.format(team['weapons']))
+    print(MEDICATIONS.format(team['meds']))
+    print(MORALE.format(team['morale']))
+    print(f"Сила команды: {calculate_power(team)}")
 
-#4
-chess_square = input()
-literal, number = chess_square[0], int(chess_square[1])
 
-even = ["b", "d", "f", "h"]
-uneven = ["a", "c", "e", "g"]
+def controlled_event(team, teams):
+    print("\n1. Укрепить базу (-30 еды, +5 мораль)")
+    print("2. Поиск еды (случайный результат)")
+    print("3. Использовать медикаменты (+30 мораль)")
+    print("4. Попросить помощь у другой команды")
+    print("5. Совершить налёт на другую команду")
 
-if literal in even:
-    print("белый") if number % 2 != 0 else print("черный")
+    choice = input("Выберите действие (1-5): ")
 
-if literal in uneven:
-    print("черный") if number % 2 != 0 else print("белый")
+    if choice == "1":
+        if team['food'] >= 20:
+            team['food'] -= 30
+            team['morale'] += 5
+            print("\n" + BASE_FORTIFIED)
+        else:
+            print("\n" + NOT_ENOUGH_FOOD)
 
-#5
-turn = input().split("-")
-forward = turn[0]
-side = turn[1]
+    elif choice == "2":
+        found_food = random.randint(10, 50)
+        team['food'] += found_food
+        print("\n" + FOUND_FOOD.format(found_food))
 
-literal_f = forward[0]
-number_f = int(forward[1])
-literal_s = side[0]
-number_s = int(side[1])
+    elif choice == "3":
+        if team['meds'] >= 1:
+            team['meds'] -= 1
+            team['morale'] += 15
+            print("\n" + USED_MEDICATIONS)
+        else:
+            print("\n" + NOT_ENOUGH_MEDICATIONS)
 
-if abs(ord(literal_s) - ord(literal_f)) == 1:
-    print("верно") if abs(number_s - number_f) == 2 else print("ошибка")
+    elif choice == "4":
+        print("\nВыберите команду для запроса помощи:")
+        options = [t for t in teams if t != team and t['alive']]
+        for i, t in enumerate(options):
+            print(f"{i + 1}. {t['name']}")
+        try:
+            selected = int(input("Введите номер команды: ")) - 1
+            target = options[selected]
+            pending_requests.append({'from': team, 'to': target})
+            print(f"\nЗапрос помощи отправлен команде {target['name']}.")
+        except:
+            print("Неверный выбор.")
+        input(PRESS_ENTER)
 
-elif abs(ord(literal_s) - ord(literal_f)) == 2:
-    print("верно") if abs(number_s - number_f) == 1 else print("ошибка")
+    elif choice == "5":
+        print("\nВыберите команду для налёта:")
+        options = [t for t in teams if t != team and t['alive']]
+        for i, t in enumerate(options):
+            print(f"{i + 1}. {t['name']} (сила: {calculate_power(t)})")
+        try:
+            selected = int(input("Введите номер команды: ")) - 1
+            target = options[selected]
 
-else:
-    print("ошибка")
+            attack_cost = 10
+            if team['food'] < attack_cost:
+                print(f"Недостаточно еды для атаки! Нужно {attack_cost} единиц.")
+                input(PRESS_ENTER)
+                return
 
-#6
-import math
+            team['food'] -= attack_cost
+            print(f"Израсходовано {attack_cost} еды на подготовку атаки.")
 
-data = list(map(int, input().split()))
-n, k, m = data[0], data[1], data[2]
+            attacker_power = calculate_power(team)
+            defender_power = calculate_power(target)
 
-minutes = (math.ceil((n * 2) / k)) * m
-print(minutes)
+            print(f"\nСила атакующей команды: {attacker_power}")
+            print(f"Сила защищающейся команды: {defender_power}")
 
-#7
-k = int(input())
-n = 0
-m = 0
+            if attacker_power > defender_power * 1.15:
+                food_loot = min(30, target['food'] // 2)
+                weapons_loot = min(2, target['weapons'] // 2)
+                team['food'] += food_loot
+                team['weapons'] += weapons_loot
+                target['food'] -= food_loot
+                target['weapons'] -= weapons_loot
+                target['morale'] -= 15
+                team['morale'] += 5
+                print("\n" + RAID_SUCCESS.format(food_loot, weapons_loot, target['name']))
+            elif attacker_power * 1.15 < defender_power:
+                food_loss = min(20, team['food'] // 3)
+                weapons_loss = min(1, team['weapons'])
+                team['food'] -= food_loss
+                team['weapons'] -= weapons_loss
+                team['morale'] -= 20
+                target['morale'] += 10
+                print("\n" + RAID_FAILED.format(food_loss, weapons_loss))
+            else:
+                team['morale'] -= 10
+                target['morale'] -= 5
+                print("\n" + RAID_EQUAL)
+        except:
+            print("Неверный выбор.")
 
-for i in range(k // 5):
-    if (k - (i * 5)) % 7 == 0:
-        N = "да"
-        break
-for j in range(k // 7):
-    if (k - (j * 7)) % 5 == 0:
-        m = "да"
-        break
+    else:
+        print("\n" + INVALID_CHOICE)
 
-print("да") if m == "да" or n == "да" else print("нет")
+    input(PRESS_ENTER)
 
-#8
-pass
 
-#9
-x_1 = float(input('Координаты по Х первой окружности: '))
-y_1 = float(input('Координаты по Y первой окружности: '))
-r_1 = float(input('Координаты по R первой окружности: '))
-x_2 = float(input('Координаты по Х второй окружности: '))
-y_2 = float(input('Координаты по Y второй окружности: '))
-r_2 = float(input('Координаты по R второй окружности: '))
+def uncontrolled_event(team, day):
+    outcome = random.randint(1, 100)
+    if outcome < 50:
+        zombies = random.randint(1 + day // 3, 3 + day // 2)
+        if team['weapons'] > 0:
+            used_weapons = min(zombies, team['weapons'])
+            team['weapons'] -= used_weapons
+            team['morale'] -= 20
+            print("\n" + ZOMBIE_ATTACK_WITH_WEAPONS.format(used_weapons))
+        else:
+            team['morale'] -= 50
+            print("\n" + ZOMBIE_ATTACK_NO_WEAPONS)
+    else:
+        found_meds = random.randint(0, 2)
+        team['meds'] += found_meds
+        print("\n" + FOUND_MEDICATIONS.format(found_meds))
 
-distance = ((x_2 - x_1) ** 2 + (y_2 - y_1) ** 2)**0.5
-if distance > r_1 + r_2:
-    print('Окружности лежат одна вне другой, не касаясь')
-elif distance < abs(r_1 - r_2):
-    print('Одна окружность лежит внутри другой, не касаясь')
-elif distance == r_1 + r_2:
-    print('Окружности имеют внешнее касание')
-elif distance == abs(r_1 - r_2):
-    print('Окружности имеют внутреннее касание')
-else:
-    print('Окружности пересекаются')
+    food_consumption = random.randint(5, 15)
+    team['food'] = max(0, team['food'] - food_consumption)
+    print(f"Команда потребила {food_consumption} единиц еды.")
 
-#10
-pass
+    if team['food'] == 0:
+        team['no_food_days'] += 1
+        if team['no_food_days'] >= 2:
+            team['alive'] = False
+            print(f"\nКоманда {team['name']} погибла от голода.")
+    else:
+        team['no_food_days'] = 0
+
+    input(PRESS_ENTER)
+
+
+def game_loop():
+    global pending_requests
+    pending_requests = []
+    days_survived = 0
+
+    teams = []
+    for i in range(3):
+        name = input(f"Введите название команды для подъезда {i + 1}: ")
+        teams.append(create_team(name))
+
+    while days_survived < 10 and any(t['alive'] and t['morale'] > 0 for t in teams):
+        for team in teams:
+            if not team['alive'] or team['morale'] <= 0:
+                team['alive'] = False
+                print(f"\nКоманда {team['name']} погибла!")
+                continue
+
+            clear_console()
+            print(DAY_TITLE.format(days_survived + 1))
+            print(f"Команда: {team['name']}")
+            display_team_resources(team)
+            controlled_event(team, teams)
+
+            if team['alive']:
+                clear_console()
+                print(DAY_TITLE.format(days_survived + 1))
+                print(f"Команда: {team['name']}")
+                display_team_resources(team)
+
+                requests_for_team = [r for r in pending_requests if r['to'] == team]
+                for request in requests_for_team:
+                    from_team = request['from']
+                    print(f"\nКоманда {from_team['name']} просит помощи.")
+                    choice = input("Помочь? (y/n): ").strip().lower()
+                    if choice == "y":
+                        try:
+                            max_food = team['food']
+                            max_weapons = team['weapons']
+                            max_meds = team['meds']
+
+                            food = int(input(f"Сколько еды передать? (макс {max_food}): "))
+                            weapons = int(input(f"Сколько оружия передать? (макс {max_weapons}): "))
+                            meds = int(input(f"Сколько медикаментов передать? (макс {max_meds}): "))
+
+                            if 0 <= food <= max_food and 0 <= weapons <= max_weapons and 0 <= meds <= max_meds:
+                                team['food'] -= food
+                                team['weapons'] -= weapons
+                                team['meds'] -= meds
+                                from_team['food'] += food
+                                from_team['weapons'] += weapons
+                                from_team['meds'] += meds
+                                print(f"Вы передали: {food} еды, {weapons} оружия, {meds} медикаментов команде {from_team['name']}.")
+                            else:
+                                print("Недопустимое количество. Помощь не оказана.")
+                        except:
+                            print("Ошибка ввода. Помощь не оказана.")
+                    else:
+                        print("Вы отказали в помощи.")
+                        team['refused_help'] += 1
+                        if team['refused_help'] >= 2:
+                            team['morale'] -= 10
+                            print("Вы слишком часто отказываете в помощи. Мораль вашей команды падает.")
+
+                pending_requests = [r for r in pending_requests if r['to'] != team]
+
+                if random.random() < 0.75:
+                    uncontrolled_event(team, days_survived + 1)
+                else:
+                    print("\nНочь прошла спокойно. Никаких событий.")
+                    input(PRESS_ENTER)
+
+        days_survived += 1
+
+    clear_console()
+    print(GAME_OVER_TITLE)
+    print(DAYS_SURVIVED.format(days_survived))
+    alive_teams = [t for t in teams if t['alive']]
+    if len(alive_teams) == 1:
+        print(f"Победила команда {alive_teams[0]['name']}! Она осталась последней выжившей.")
+    elif all(t['morale'] > 0 for t in teams):
+        print(WIN_MESSAGE)
+    else:
+        print(LOSE_MESSAGE)
+
+
+if __name__ == "__main__":
+    game_loop()
+
