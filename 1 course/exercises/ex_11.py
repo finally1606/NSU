@@ -1,8 +1,7 @@
 #1
-input_text = str(*open('input.txt', 'r'))
-
-with open('output.txt', 'w') as output_file:
-    output_file.write(input_text.upper())
+f = str(*open('input.txt', 'r'))
+fn = open('output.txt', 'w')
+fn.write(f.upper())
 
 #2
 f = open('input.txt', 'r')
